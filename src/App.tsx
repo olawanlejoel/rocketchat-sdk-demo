@@ -22,8 +22,14 @@ async function hashPassword(password: string): Promise<string> {
 	return hashHex;
 }
 
+interface Room {
+	_id: string;
+	name: string;
+}
+
 const App = () => {
 	const [loggedIn, setLoggedIn] = useState(false);
+	const [rooms, setRooms] = useState<Room[]>([]);
 	const [user, setUser] = useState({
 		username: 'funke.test',
 		password: 'hola',
@@ -36,6 +42,13 @@ const App = () => {
 
 		const userDetails = sdk.account.user;
 		console.log(userDetails);
+
+		fetchRooms();
+	};
+
+	const fetchRooms = async () => {
+		const rooms = await sdk.rest.get('/v1/subscriptions.get');
+		setRooms(rooms.update);
 	};
 
 	const logoutUser = async () => {
@@ -43,15 +56,8 @@ const App = () => {
 		setLoggedIn(false);
 	};
 
-	// useEffect(() => {
-
-	// 	login();
-	// }, [user]);
-
 	return (
 		<div>
-			<h1>Hello World!</h1>
-
 			{loggedIn ? (
 				<button onClick={logoutUser}>Logout</button>
 			) : (
@@ -63,6 +69,15 @@ const App = () => {
 					Login
 				</button>
 			)}
+
+			<div>
+				<h1>Rooms</h1>
+				<ul>
+					{rooms.map((room: Room) => (
+						<li key={room._id}>{room.name}</li>
+					))}
+				</ul>
+			</div>
 		</div>
 	);
 };
